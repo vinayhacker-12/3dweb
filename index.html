@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meteorite Hitting</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script>
+    AFRAME.registerComponent('animate-meteorite', {
+      schema: {
+        duration: {type: 'number', default: 3000},
+        delay: {type: 'number', default: 0}
+      },
+      init: function () {
+        const el = this.el;
+        const delay = this.data.delay;
+        const duration = this.data.duration;
+        el.setAttribute('animation', {
+          property: 'position',
+          to: '0 0 -5',
+          dur: duration,
+          delay: delay,
+          easing: 'easeInQuad',
+          loop: false
+        });
+        el.addEventListener('animationcomplete', function () {
+          el.setAttribute('visible', 'false');
+          const explosion = document.createElement('a-sphere');
+          explosion.setAttribute('position', '0 0 -5');
+          explosion.setAttribute('radius', '1');
+          explosion.setAttribute('color', 'orange');
+          explosion.setAttribute('opacity', '0.6');
+          explosion.setAttribute('animation', {
+            property: 'scale',
+            to: '5 5 5',
+            dur: 1000,
+            easing: 'easeOutQuad',
+            loop: false
+          });
+          el.sceneEl.appendChild(explosion);
+          explosion.addEventListener('animationcomplete', function () {
+            explosion.parentNode.removeChild(explosion);
+          });
+        });
+      }
+    });
+    
+    AFRAME.registerComponent('starfield', {
+      schema: {
+        count: {type: 'number', default: 1000}
+      },
+      init: function () {
+        const sceneEl = this.el.sceneEl;
+        const starCount = this.data.count;
+        for (let i = 0; i < starCount; i++) {
+          const star = document.createElement('a-sphere');
+          const x = Math.random() * 100 - 50;
+          const y = Math.random() * 100 - 50;
+          const z = Math.random() * -100 - 20;
+          star.setAttribute('position', {x: x, y: y, z: z});
+          star.setAttribute('radius', 0.1);
+          star.setAttribute('color', '#FFF');
+          sceneEl.appendChild(star);
+        }
+      }
+    });
+  </script>
+</head>
+<body>
+  <a-scene>
+    <!-- Starfield -->
+    <a-entity starfield></a-entity>
+    
+    <!-- Earth or Moon -->
+    <a-sphere 
+      id="earth" 
+      src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/moon_1024.jpg" 
+      radius="4" 
+      position="0 0 -5">
+    </a-sphere>
+    
+    <!-- Meteorites -->
+    <a-sphere 
+      color="#FF0000" 
+      radius="0.5" 
+      position="10 10 -5" 
+      animate-meteorite="duration: 3000; delay: 0">
+    </a-sphere>
+    <a-sphere 
+      color="#FF0000" 
+      radius="0.5" 
+      position="12 12 -5" 
+      animate-meteorite="duration: 3000; delay: 2000">
+    </a-sphere>
+    <a-sphere 
+      color="#FF0000" 
+      radius="0.5" 
+      position="14 14 -5" 
+      animate-meteorite="duration: 3000; delay: 4000">
+    </a-sphere>
+    
+    <!-- Sky -->
+    <a-sky color="#001"></a-sky>
+    
+    <!-- Lighting -->
+    <a-light type="ambient" color="#888"></a-light>
+    <a-light type="directional" intensity="1" position="1 1 0"></a-light>
+    
+    <!-- Camera -->
+    <a-entity camera look-controls position="0 2 10"></a-entity>
+  </a-scene>
+</body>
+</html>
